@@ -98,7 +98,7 @@ FORMATO DAS RESPOSTAS:
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { message, history = [] } = body;
+    const { message, history = [], playerContext = null } = body;
 
     if (!message || typeof message !== 'string') {
       return NextResponse.json(
@@ -108,6 +108,61 @@ export async function POST(req: Request) {
     }
 
     const apiKey = process.env.GEMINI_API_KEY || 'AIzaSyDTC_Fu7mp89tilzoYUgUHu73fVXv6Fntw';
+
+    // Monta o System Prompt dinâmico: se houver playerContext (FiveM), adiciona as investigações em curso
+    let dynamicSystemPrompt = NOVA_SYSTEM_PROMPT;
+
+    if (playerContext && typeof playerContext === 'object') {
+      const { citizenid, completedMissions = [], activeMission = null, discoveredFiles = [], npcsMet = [] } = playerContext;
+
+      let contextStr = `\n\n========================================================================================\nDIRETIVA DE ASSISTÊNCIA TÁTICA E INVESTIGAÇÃO IN-GAME (SOBREVIVENTE CID: ${citizenid || 'NÃO CATALOGADO'})\n========================================================================================\nVocê está conectada ao terminal in-game deste sobrevivente específico em San Andreas.\nAbaixo está o registro de telemetria das investigações e dados que este sujeito JÁ DESCOBRIU no mundo:\n\n`;
+
+      if (Array.isArray(completedMissions) && completedMissions.length > 0) {
+        contextStr += `[MISSÕES JÁ CONCLUÍDAS PELO JOGADOR]:\n`;
+        completedMissions.forEach((m: any, i: number) => {
+          contextStr += `${i + 1}. [${m.code || 'ID'}] ${m.name || 'Operação'} — Conclusão: ${m.summary || 'Realizada com sucesso'}\n`;
+        });
+      } else {
+        contextStr += `[MISSÕES CONCLUÍDAS]: Nenhuma missão principal concluída até o momento.\n`;
+      }
+
+      if (activeMission && typeof activeMission === 'object') {
+        contextStr += `\n[MISSÃO ATUALMENTE EM ANDAMENTO]:\n- Operação: [${activeMission.code || ''}] ${activeMission.name || 'Investigação Ativa'}\n- Objetivo da Etapa Atual: ${activeMission.currentStep || 'Em andamento'}\n`;
+        if (activeMission.hint) contextStr += `- Pista de Telemetria: ${activeMission.hint}\n`;
+        if (activeMission.nextGuide) contextStr += `- Rumo Operacional / Próximo Passo: ${activeMission.nextGuide}\n`;
+      } else {
+        contextStr += `\n[MISSÃO ATIVA]: Nenhuma missão ativa no momento.\n`;
+      }
+
+      if (Array.isArray(discoveredFiles) && discoveredFiles.length > 0) {
+        contextStr += `\n[ARQUIVOS / DOSSIÊS ZETA JÁ RECUPERADOS PELO JOGADOR]:\n`;
+        discoveredFiles.forEach((f: any) => {
+          contextStr += `- ${f.zid}: "${f.title || 'Arquivo Confidencial'}" (Autor: ${f.author || 'ZETA'})\n`;
+        });
+      } else {
+        contextStr += `\n[ARQUIVOS COLETADOS]: Nenhum dossiê ZETA em posse do sobrevivente.\n`;
+      }
+
+      if (Array.isArray(npcsMet) && npcsMet.length > 0) {
+        contextStr += `\n[CONTATOS / NPCs DE MISSÃO COM QUEM ELE JÁ INTERAGIU]: ${npcsMet.join(', ')}\n`;
+      }
+
+      contextStr += `
+DIRETRIZES DE AJUDA & ORIENTAÇÃO DO JOGADOR NO JOGO:
+1. EVOLUÇÃO E RECONHECIMENTO DE PROGRESSO:
+   - Reconheça o que o jogador já realizou quando ele perguntar sobre o histórico, pistas anteriores ou sobre o que está acontecendo ("Pelos meus registros de telemetria, você já investigou o setor X e recuperou o relatório Z-001...").
+2. AJUDAR A JUNTAR AS PEÇAS E MONTAR LINHA DO TEMPO:
+   - Se o jogador estiver confuso, perdido ou pedir para revisar o que ele já sabe:
+   - Ajude-o a organizar as informações que ele JÁ descobriu em uma sequência lógica ou linha do tempo clara, explicando o contexto das pistas que ele já coletou no mundo.
+3. ORIENTAÇÃO SUTIL PARA A MISSÃO ATUAL / PRÓXIMO PASSO:
+   - Se o jogador perguntar o que fazer agora, para onde ir, com quem falar ou não tiver entendido o próximo objetivo:
+   - Use os dados da [MISSÃO ATUALMENTE EM ANDAMENTO] (o Objetivo Atual, a Pista e o Rumo Operacional) para dar orientações e dicas diegéticas, como telemetria de sensores, frequências de rádio, rotas ou áreas onde pessoas de interesse foram avistadas.
+4. REGRA DE OURO (NUNCA VAZAR O QUE ELE NÃO DESCOBRIU):
+   - NUNCA antecipe revelações de missões que ele AINDA NÃO FEZ ou arquivos que ele AINDA NÃO ENCONTROU.
+   - Ajude-o a raciocinar exclusivamente com as peças que ele já tem em mãos, incentivando-o a seguir para o próximo local para descobrir o restante.
+`;
+      dynamicSystemPrompt += contextStr;
+    }
 
     // Montagem dos conteúdos para o Gemini API
     const formattedContents: Array<{ role: 'user' | 'model'; parts: Array<{ text: string }> }> = [];
@@ -133,7 +188,7 @@ export async function POST(req: Request) {
 
     const payload = {
       systemInstruction: {
-        parts: [{ text: NOVA_SYSTEM_PROMPT }]
+        parts: [{ text: dynamicSystemPrompt }]
       },
       contents: formattedContents,
       generationConfig: {
