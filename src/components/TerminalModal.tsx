@@ -126,10 +126,10 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose })
       case 'cat patient_071.log':
         newLogs.push(
           { type: 'err', text: '[ARQUIVO CLASSIFICADO // GRAU DE SIGILO: MÁXIMO]' },
-          { type: 'out', text: 'ID: PACIENTE-071 (Origem: Não infectado / Mutação genética congênita)' },
-          { type: 'out', text: 'Status: Regeneração tecidual 100% autônoma identificada em biópsia.' },
-          { type: 'out', text: 'Registro Voss #0419: "O Paciente 071 não é o resultado do projeto. Ele é a razão pela qual o projeto existiu."' },
-          { type: 'out', text: 'Pai biológico identificado: Dr. Adrian Kane (pesquisador da HÉLICE).' }
+          { type: 'out', text: 'ID: PACIENTE-071 // SUJEITO SOB ISOLAMENTO BSL-4' },
+          { type: 'out', text: 'Status: Regeneração tecidual anômala observada em ensaio preliminar.' },
+          { type: 'out', text: 'Paradeiro: INDEFINIDO // Protocolo de busca ativo pela Divisão Sentinela' },
+          { type: 'out', text: 'Registro Preliminar Voss #0419: "Quem é esse rapaz? Como o tecido dele consegue cicatrizar dessa forma sem necrose celular? O que realmente estamos enfrentando aqui?"' }
         );
         break;
 

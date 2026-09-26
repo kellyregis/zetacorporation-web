@@ -19,5 +19,5 @@ Disallow: /classificado/
 Disallow: /api/cofre/
 
 # NOTA DA DIRETORIA CIENTÍFICA:
-# "O Paciente 071 não é o resultado do projeto. Ele é a razão pela qual o projeto existiu."
-# — Dr. Elias Voss (Registro Arquivado #0419)
+# "Quem é esse rapaz? Como o tecido dele consegue cicatrizar dessa forma sem desenvolver necrose celular? O que realmente estamos enfrentando aqui?"
+# — Dr. Elias Voss (Registro Preliminar #0419)

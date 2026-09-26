@@ -35,7 +35,7 @@ const MEMBERS: TeamMember[] = [
       status: 'DESAPARECIDO // ALERTA DE CAPTURA SENTINELA',
       internalId: 'EMP-0419',
       lastKnownLocation: 'Alamo Sea (Píer de Galilee) / Refúgio em Paleto Forest',
-      interceptedNote: '"O Paciente 071 não é o resultado do projeto. Ele é a razão pela qual o projeto existiu. Eles não querem a cura. Eles querem transformar a mutação em uma arma de regeneração perpétua."',
+      interceptedNote: '"As reações celulares do Paciente 071 desafiam qualquer lógica biológica... Como um tecido danificado se recompõe em segundos sem inflamação? O que exatamente a ZETA encontrou antes de nos trazer para este laboratório?"',
       investigationClue: 'Arquivos pessoais do Dr. Voss foram copiados para pendrives físicos espalhados pelo mapa e escondidos em seu barco no píer de Galilee e em sua cabana em Paleto.',
       audioFrequency: '104.7 MHz (Transmissor de Sandy Shores)'
     }
@@ -68,7 +68,7 @@ const MEMBERS: TeamMember[] = [
       status: 'SOB VIGILÂNCIA // INVESTIGAÇÃO DE MOTIM',
       internalId: 'EMP-0112',
       lastKnownLocation: 'Van capotada da HÉLICE (Route 68, Harmony)',
-      interceptedNote: '"O teste genético é definitivo: 071 é meu filho de sangue. Ele não é um número em uma placa de Petri. Voss está me ajudando a sintetizar o Estabilizador antes que a infecção avance."',
+      interceptedNote: '"O perfil biológico do 071 é singular demais para ser tratado como mero espécime de descarte. Voss quer desacelerar as pesquisas por medo ético, mas precisamos do Estabilizador pronto antes que a Sentinela assuma o laboratório."',
       investigationClue: 'Kane transportava frascos do Estabilizador da HÉLICE em uma van de pesquisa na Route 68 antes de sofrer uma emboscada pela Sentinela.'
     }
   },

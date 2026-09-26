@@ -35,7 +35,7 @@ export const EasterEggs: React.FC = () => {
       const k = String(key || '').toLowerCase();
       if (k === '071' || k === 'patient' || k === 'patient071') {
         console.warn(
-          '%c[DOSSIÊ PACIENTE 071]: O Paciente 071 nasceu imune à necrose tecidual. Ele não foi contaminado pelo Z-13. A ZETA construiu o laboratório subterrâneo ZETA-04 para replicar seu genoma artificialmente.',
+          '%c[DOSSIÊ PACIENTE 071]: Sujeito sob protocolo de isolamento BSL-4. Apresenta padrão celular anômalo sem correspondência clínica. Status: Ativo. Paradeiro: INDEFINIDO. Registro Voss #0419: "Quem é esse rapaz? Como o tecido dele se recompõe sem necrose celular? O que realmente estamos enfrentando aqui?"',
           'color: #f87171; font-weight: bold; font-size: 13px;'
         );
         return 'DESBLOQUEADO: Arquivo 071 registrado na memória.';
