@@ -107,7 +107,17 @@ export async function POST(req: Request) {
       );
     }
 
-    const apiKey = process.env.GEMINI_API_KEY || 'AIzaSyDTC_Fu7mp89tilzoYUgUHu73fVXv6Fntw';
+    const apiKey = process.env.GEMINI_API_KEY;
+
+    if (!apiKey) {
+      return NextResponse.json(
+        {
+          ok: false,
+          reply: '[N.O.V.A. CORE]: [CHAVE DE KERNEL NÃO CONFIGURADA] A variável de ambiente GEMINI_API_KEY deve ser informada na infraestrutura.',
+        },
+        { status: 500, headers: corsHeaders() }
+      );
+    }
 
     // Monta o System Prompt dinâmico: se houver playerContext (FiveM), adiciona as investigações em curso
     let dynamicSystemPrompt = NOVA_SYSTEM_PROMPT;
