@@ -54,7 +54,7 @@ const VOSS_EMAILS: VossEmail[] = [
     senderName: 'Eleanor Sterling',
     senderEmail: 'e.sterling@corp.zetacorporation.com.br',
     subject: '[URGENTE] Cumprimento do Cronograma CRT-13 // Comitê Executivo',
-    date: '12 Outubro 2026, 18:42',
+    date: '12 Outubro 2016, 18:42',
     category: 'DIRETORIA',
     unread: false,
     preview: 'Dr. Voss, tomei conhecimento das suas ressalvas sobre mais 90 dias de ensaios BSL-4. O conselho de acionistas não tolerará mais adiamentos...',
@@ -77,7 +77,7 @@ const VOSS_EMAILS: VossEmail[] = [
     senderName: 'Dra. Maya Lin Reis',
     senderEmail: 'm.reis@neuro.zetacorporation.com.br',
     subject: 'Anomalias na Regressão Celular — Pacientes do Bloco B',
-    date: '18 Outubro 2026, 09:15',
+    date: '18 Outubro 2016, 09:15',
     category: 'NEURO',
     unread: false,
     preview: 'Elias, conclui o mapeamento sináptico dos quatro voluntários que receberam a dose Z-13. A regeneração física é impecável, mas...',
@@ -101,7 +101,7 @@ const VOSS_EMAILS: VossEmail[] = [
     senderName: 'Gen. Hector Briggs',
     senderEmail: 'h.briggs@security.zetacorporation.com.br',
     subject: 'Protocolo de Escolta Comboio 17 // Autorização Nível 5',
-    date: '24 Outubro 2026, 23:04',
+    date: '24 Outubro 2016, 23:04',
     category: 'MILITAR',
     unread: true,
     preview: 'Doutor Voss, a operação de transporte do espécime sob sua custódia (Paciente 071) foi confirmada. Dois blindados Insurgent da Sentinela farão a escolta...',
@@ -124,7 +124,7 @@ const VOSS_EMAILS: VossEmail[] = [
     senderName: 'Dr. Adrian Kane',
     senderEmail: 'a.kane@helice.zetacorporation.com.br',
     subject: 'RE: Amostras Biológicas do Sujeito 071 // Limites de Tolerância',
-    date: '29 Outubro 2026, 14:30',
+    date: '29 Outubro 2016, 14:30',
     category: 'HÉLICE',
     unread: false,
     preview: 'Elias, pare de agir como um médico de interior provinciano. Você sabe muito bem o que aquele rapaz representa. A carne é descartável...',
@@ -148,7 +148,7 @@ const VOSS_EMAILS: VossEmail[] = [
     senderName: 'Dr. Elias Voss [RASCUNHO NÃO TRANSMITIDO]',
     senderEmail: 'e.voss@mail.zetacorporation.com.br',
     subject: 'CARTA DE RENÚNCIA & DENÚNCIA FORMAL DE BIOSSEGURANÇA',
-    date: '02 Novembro 2026, 03:40',
+    date: '02 Novembro 2016, 03:40',
     category: 'RASCUNHO',
     unread: false,
     preview: 'Ao Comitê Executivo e à Dra. Eleanor Sterling: Por meio desta, renuncio formalmente ao cargo de CMO. O que nós criamos não é a cura...',
@@ -182,14 +182,14 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose })
   const [portalSubView, setPortalSubView] = useState<'login' | 'contingency' | 'webmail'>('login');
 
   // Form de Login
-  const [loginId, setLoginId] = useState('ZTAC-071-VOSS');
+  const [loginId, setLoginId] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loginFeedback, setLoginFeedback] = useState<{ type: 'error' | 'success'; message: string } | null>(null);
 
   // Form de Despacho de Contingência
   const [contingencyEmail, setContingencyEmail] = useState('');
-  const [contingencyId, setContingencyId] = useState('ZTAC-071-VOSS');
+  const [contingencyId, setContingencyId] = useState('');
   const [contingencyLoading, setContingencyLoading] = useState(false);
   const [contingencyFeedback, setContingencyFeedback] = useState<{
     type: 'success' | 'error';
@@ -224,9 +224,9 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose })
     setLoginFeedback(null);
 
     const cleanId = loginId.trim().toLowerCase();
-    const cleanPass = loginPassword.trim();
+    const cleanPass = loginPassword.trim().toLowerCase();
 
-    // Verificação de ID do Dr. Voss
+    // Verificação de ID do Dr. Voss (Case-insensitive)
     const isVossId =
       cleanId === 'ztac-071-voss' ||
       cleanId === 'e.voss@mail.zetacorporation.com.br' ||
@@ -239,19 +239,16 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose })
     if (!isVossId) {
       setLoginFeedback({
         type: 'error',
-        message: 'Identificação corporativa não catalogada no diretório da ZETA. Verifique sua credencial ou solicite via contingência.'
+        message: 'Identificação corporativa não catalogada no diretório da ZETA. Verifique a credencial recebida por e-mail ou solicite via contingência.'
       });
       return;
     }
 
-    // Senha válida da Lore: GALILEE-Z13 (também aceita variantes e senhas fáceis de teste)
-    const upperPass = cleanPass.toUpperCase();
+    // Senha válida da Lore: GALILEE-Z13 (Case-insensitive)
     const isValidPass =
-      upperPass === 'GALILEE-Z13' ||
-      upperPass === 'Z13-GALILEE' ||
       cleanPass === 'galilee-z13' ||
       cleanPass === 'z13-galilee' ||
-      upperPass === 'ZTAC-071-VOSS' ||
+      cleanPass === 'ztac-071-voss' ||
       cleanPass === 'voss123' ||
       cleanPass === 'admin' ||
       cleanPass === '071';
@@ -390,9 +387,9 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose })
       case 'chave':
         newLogs.push(
           { type: 'out', text: '[INTERCEPTAÇÃO ROOT // NOTAS DE CAMPO]:' },
-          { type: 'out', text: 'Dr. Voss não confiava nos servidores corporativos e nunca salvou a senha na nuvem.' },
-          { type: 'out', text: 'A chave mestra está escrita à mão no bloco de notas da bancada do barco dele em Galilee.' },
-          { type: 'out', text: 'Dica do padrão: GALILEE-Z13' }
+          { type: 'out', text: 'Dr. Voss não confiava nos servidores corporativos e nunca salvou sua senha na nuvem.' },
+          { type: 'out', text: 'A chave mestra foi gravada à mão no bloco de notas da bancada do barco dele em Galilee (veja arquivo Z-007).' },
+          { type: 'out', text: 'Padrão da anotação: [LOCAL]-[PROJETO]. Investigue o barco no píer para obter a combinação exata.' }
         );
         break;
 
@@ -528,7 +525,7 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose })
                       <div>
                         <label className="block text-xs font-medium text-slate-300 mb-1.5 flex items-center justify-between">
                           <span>ID Corporativo ou E-mail Institucional:</span>
-                          <span className="text-[10px] text-cyan-400">ex: ZTAC-071-VOSS</span>
+                          <span className="text-[10px] text-cyan-400">ex: ZTAC-XXX-XXXX</span>
                         </label>
                         <div className="relative">
                           <input
@@ -536,7 +533,7 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose })
                             required
                             value={loginId}
                             onChange={(e) => setLoginId(e.target.value)}
-                            placeholder="ZTAC-071-VOSS"
+                            placeholder="ex: ZTAC-XXX-XXXX ou usuario@mail.zetacorporation.com.br"
                             className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-white text-xs font-mono focus:outline-none focus:border-cyan-400"
                           />
                         </div>
@@ -545,7 +542,7 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose })
                       <div>
                         <label className="block text-xs font-medium text-slate-300 mb-1.5 flex items-center justify-between">
                           <span>Senha / Chave Quântica:</span>
-                          <span className="text-[10px] text-slate-500">Chave física requerida</span>
+                          <span className="text-[10px] text-slate-500">Chave física de laboratório</span>
                         </label>
                         <div className="relative">
                           <input
@@ -553,7 +550,7 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose })
                             required
                             value={loginPassword}
                             onChange={(e) => setLoginPassword(e.target.value)}
-                            placeholder="Digite a chave (ex: GALILEE-Z13)"
+                            placeholder="••••••••••••"
                             className="w-full px-3.5 py-2.5 pr-10 bg-slate-900 border border-slate-700 rounded-lg text-white text-xs font-mono focus:outline-none focus:border-cyan-400"
                           />
                           <button
@@ -643,28 +640,30 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose })
 
                     <form onSubmit={handleSendContingencyEmail} className="space-y-4">
                       <div>
-                        <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                          ID de Referência (Opcional):
+                        <label className="block text-xs font-medium text-slate-300 mb-1.5 flex items-center justify-between">
+                          <span>ID de Referência (Opcional):</span>
+                          <span className="text-[10px] text-cyan-400">ex: ZTAC-XXX-XXXX</span>
                         </label>
                         <input
                           type="text"
                           value={contingencyId}
                           onChange={(e) => setContingencyId(e.target.value)}
-                          placeholder="ZTAC-071-VOSS"
+                          placeholder="ex: ZTAC-XXX-XXXX"
                           className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-white text-xs font-mono focus:outline-none focus:border-cyan-400"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                          Seu E-mail Pessoal (Para receber os dados de contingência):
+                        <label className="block text-xs font-medium text-slate-300 mb-1.5 flex items-center justify-between">
+                          <span>Seu E-mail Pessoal (Para receber os dados de contingência):</span>
+                          <span className="text-[10px] text-slate-500">ex: seu.nome@email.com</span>
                         </label>
                         <input
                           type="email"
                           required
                           value={contingencyEmail}
                           onChange={(e) => setContingencyEmail(e.target.value)}
-                          placeholder="seu.email@provedor.com"
+                          placeholder="ex: seu.nome@email.com"
                           className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-lg text-white text-xs font-mono focus:outline-none focus:border-cyan-400"
                         />
                       </div>

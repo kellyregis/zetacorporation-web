@@ -92,8 +92,8 @@ export async function POST(req: Request) {
           <hr style="border: 0; border-top: 1px solid #1e293b; margin: 25px 0;" />
 
           <p style="font-size: 11px; color: #64748b; line-height: 1.5; margin: 0; font-family: monospace;">
-            ZETA Corporation &copy; 2026 · Divisão de Pesquisa Biológica e Longevidade Celular.<br/>
-            Este é um comunicado oficial e confidencial. Não responda diretamente a este despacho.
+            ZETA Corporation &copy; 2016 · Arquivo Descriptografado de Contingência (Protocolo Z-13).<br/>
+            Este é um comunicado corporativo confidencial. Não responda diretamente a este despacho.
           </p>
         </div>
       `;

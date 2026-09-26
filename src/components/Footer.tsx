@@ -120,7 +120,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenTerminal }) => {
         {/* Bottom Bar with Hidden Base64 Clue */}
         <div className="pt-8 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-[11px] text-slate-500">
           <div>
-            &copy; 2026 ZETA Corporation. Todos os direitos reservados. Patentes registradas sob protocolo Z-13.
+            &copy; 2016-2026 ZETA Corporation. Todos os direitos reservados. Patentes registradas sob protocolo Z-13 (2016).
           </div>
 
           <div className="flex items-center gap-4">

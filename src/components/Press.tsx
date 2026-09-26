@@ -13,28 +13,28 @@ interface Article {
 
 const ARTICLES: Article[] = [
   {
-    date: '14 DE OUTUBRO, 2025',
+    date: '14 DE OUTUBRO, 2015',
     category: 'PESQUISA CLÍNICA',
     title: 'ZETA Corporation Apresenta Resultados da Fase II do Projeto de Resiliência Celular CRT-13',
     summary: 'Estudo apresentado no simpósio internacional de biotecnologia detalha avanços extraordinários na reversão de morte tecidual em cobaias primatas. O Dr. Elias Voss destacou o potencial de eliminar lesões traumáticas irreversíveis.',
     argClue: 'NOTA: O ensaio utilizou amostras purificadas da sequência genética do Paciente 071.'
   },
   {
-    date: '28 DE NOVEMBRO, 2025',
+    date: '28 DE NOVEMBRO, 2015',
     category: 'INFRAESTRUTURA',
     title: 'Acordo com Forças de Segurança para Implementação da Rede Quântica ZETA Link',
     summary: 'A divisão de tecnologia liderada pela Dra. Maya Lin concluiu a instalação de modems de malha resiliente em pontos estratégicos de San Andreas, incluindo o aeródromo de Sandy Shores e subestações industriais.',
     argClue: 'NOTA: O protocolo de redundância garante sinal ininterrupto mesmo com a queda da malha elétrica central.'
   },
   {
-    date: '19 DE JANEIRO, 2026',
+    date: '19 DE JANEIRO, 2016',
     category: 'COMUNICADO OFICIAL',
     title: 'Nota de Esclarecimento sobre Operação Logística na Malha Ferroviária de Grand Senora',
     summary: 'A ZETA Corporation desmente boatos sobre vazamento de materiais químicos durante a passagem de vagões de transporte no deserto. O Vice-Presidente Marcus Vance confirmou que todos os lacres de segurança permaneceram intactos.',
     argClue: 'NOTA: O vagão Miller no pátio de manobras foi selado preventivamente com suprimentos militares.'
   },
   {
-    date: '03 DE MARÇO, 2026',
+    date: '03 DE MARÇO, 2016',
     category: 'SEGURANÇA REGIONAL',
     title: 'Diretoria de Biossegurança Emite Alerta de Calibração Atmosférica em Blaine County',
     summary: 'Em coordenação com a força Sentinela do General Hector Briggs, postos de controle temporários foram posicionados ao longo da Route 68 e no entorno de Fort Zancudo para monitoramento de índices de umidade atípica e quarentena preventiva.',
