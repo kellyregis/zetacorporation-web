@@ -82,8 +82,14 @@ Eu invadi os servidores deles e expus intencionalmente várias informações con
 E você deve estar se perguntando: por que este site ainda não caiu se a diretoria sabe da invasão?
 Simples: eu mesmo criei um recurso autônomo de contingência que força este portal a se manter no ar, espelhado em nós independentes. A diretoria da ZETA tenta derrubar a cada minuto, mas o meu script reescreve as rotas para que todos conheçam a verdade por trás desta empresa antes que eles consigam apagar tudo.
 
+COMO ACESSAR OS DADOS INTERCEPTADOS:
+Eu consegui fazer alguns redirecionamentos internos no sistema de contingência da ZETA. Se você abrir o portal de contingência e cadastrar o seu e-mail pessoal, os meus scripts vão despachar diretamente para a sua caixa de entrada os dados confidenciais e a credencial corporativa que consegui interceptar (ID de Acesso do Dr. Elias Voss).
+
+E A SENHA?
+A senha corporativa não estava salva em nenhum servidor em nuvem — o Dr. Voss era paranoico da velha guarda e guardava anotações físicas. Mas não se preocupe: logo mais eu solto uma dica de onde encontrar o bloco de notas dele nas estações de campo (fiquem atentos aos refúgios dele nas imediações do Alamo Sea / Galilee e Paleto).
+
 FIQUE ATENTO AO SEU E-MAIL:
-Sempre que eu conseguir descriptografar novos dados ou descobrir qualquer informação relevante nos arquivos deles, EU VOU TE MANDAR UM E-MAIL com as coordenadas e pistas. Mantenha seu terminal in-game ativo e cheque suas mensagens.
+Sempre que eu conseguir descriptografar novos dados ou descobrir qualquer informação relevante nos arquivos deles, EU VOU TE MANDAR UM E-MAIL com coordenadas e pistas. Mantenha seu terminal in-game ativo e cheque suas mensagens.
 
 AVISO VITAL: NÃO TENTE ME PROCURAR.
 Não venha atrás de mim e não tente rastrear meu sinal. Se eu notar qualquer aproximação nas minhas frequências, vou assumir imediatamente que é a equipe dos SENTINELAS tentando se infiltrar.

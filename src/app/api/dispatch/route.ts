@@ -77,7 +77,8 @@ export async function POST(req: Request) {
               ZTAC-071-VOSS
             </div>
             <div style="font-size: 11px; color: #94a3b8; margin-top: 8px;">
-              Expiração: 15 minutos · Setor Autorizado: <em>Subsolo 4 / Terminal ZETA-04</em>
+              Usuário Associado: <em>Dr. Elias Voss (Chief Medical Officer)</em><br/>
+              Chave de Acesso: <em>Requer senha física de laboratório registrada em bancada de campo (Galilee).</em>
             </div>
           </div>
 
@@ -116,7 +117,8 @@ export async function POST(req: Request) {
     return NextResponse.json({
       ok: true,
       id: data?.id,
-      message: 'Despacho de segurança transmitido com sucesso. Verifique seu e-mail corporativo.',
+      message: 'Despacho de segurança transmitido com sucesso. Verifique seu e-mail.',
+      clue: 'ID interceptado: ZTAC-071-VOSS // A senha de acesso está anotada fisicamente no barco de Voss em Galilee.',
     });
   } catch (err: any) {
     console.error('[ZETA-SEC / RESEND EXCEPTION]:', err);
