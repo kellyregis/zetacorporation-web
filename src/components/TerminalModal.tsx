@@ -388,8 +388,8 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose })
         newLogs.push(
           { type: 'out', text: '[INTERCEPTAÇÃO ROOT // NOTAS DE CAMPO]:' },
           { type: 'out', text: 'Dr. Voss não confiava nos servidores corporativos e nunca salvou sua senha na nuvem.' },
-          { type: 'out', text: 'A chave mestra foi gravada à mão no bloco de notas da bancada do barco dele em Galilee (veja arquivo Z-007).' },
-          { type: 'out', text: 'Padrão da anotação: [LOCAL]-[PROJETO]. Investigue o barco no píer para obter a combinação exata.' }
+          { type: 'out', text: 'A chave mestra está escrita à mão no bloco de notas da bancada do barco dele em Galilee (veja arquivo Z-007).' },
+          { type: 'out', text: 'Dica do padrão: GALILEE-XXX' }
         );
         break;
 
