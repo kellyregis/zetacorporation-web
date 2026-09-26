@@ -194,7 +194,7 @@ DIRETRIZES DE AJUDA & ORIENTAÇÃO DO JOGADOR NO JOGO:
       generationConfig: {
         temperature: 0.75,
         topP: 0.9,
-        maxOutputTokens: 600,
+        maxOutputTokens: 1000,
       }
     };
 
