@@ -372,13 +372,38 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose })
         const data = await res.json();
         const reply = data.reply || '[N.O.V.A.]: [FALHA DE COMUNICAÇÃO NO SUBSISTEMA]';
 
-        // Atualiza logs removendo a mensagem temporária de processamento
+        // Remove a mensagem de espera e adiciona slot vazio para início da digitação
         setCliLogs((prev) => {
           const filtered = prev.filter(
             (log) => log.text !== '[N.O.V.A. PROCESSANDO TELEMETRIA...]'
           );
-          return [...filtered, { type: 'out', text: reply }];
+          return [...filtered, { type: 'out', text: '' }];
         });
+
+        // Efeito de digitação humana / teletipo neural ("nem muito lento nem muito rápido")
+        let accumulated = '';
+        for (let i = 0; i < reply.length; i++) {
+          accumulated += reply[i];
+          const char = reply[i];
+
+          setCliLogs((prev) => {
+            if (prev.length === 0) return prev;
+            const copy = [...prev];
+            copy[copy.length - 1] = { type: 'out', text: accumulated };
+            return copy;
+          });
+
+          let delay = 14;
+          if (char === '.' || char === '!' || char === '?') {
+            delay = 60;
+          } else if (char === ',' || char === ':' || char === ';') {
+            delay = 35;
+          } else if (char === '\n') {
+            delay = 75;
+          }
+
+          await new Promise((r) => setTimeout(r, delay));
+        }
 
         // Atualiza histórico de contexto para memória contínua da IA
         setNovaHistory((prev) => [
@@ -1026,6 +1051,8 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose })
               <div className="flex-1 overflow-y-auto space-y-2 text-xs font-mono pr-2">
                 {cliLogs.map((log, index) => {
                   const isNovaSpeech = log.text.startsWith('N.O.V.A.:') || log.text.includes('[N.O.V.A.');
+                  const isLast = index === cliLogs.length - 1;
+                  const isTypingNow = isLast && novaLoading && isNovaMode && log.type === 'out';
                   return (
                     <div
                       key={index}
@@ -1037,11 +1064,16 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose })
                           : log.type === 'err'
                           ? 'text-red-400 font-semibold'
                           : isNovaSpeech
-                          ? 'text-fuchsia-200 bg-fuchsia-950/20 border-l-2 border-fuchsia-500/60 p-2 rounded leading-relaxed shadow-[0_0_15px_rgba(217,70,239,0.1)]'
-                          : 'text-slate-300'
+                          ? 'text-fuchsia-200 bg-fuchsia-950/20 border-l-2 border-fuchsia-500/60 p-2 rounded leading-relaxed shadow-[0_0_15px_rgba(217,70,239,0.1)] whitespace-pre-wrap'
+                          : 'text-slate-300 whitespace-pre-wrap'
                       }`}
                     >
                       {log.text}
+                      {isTypingNow && (
+                        <span className="inline-block text-fuchsia-400 font-bold animate-pulse ml-0.5">
+                          ▌
+                        </span>
+                      )}
                     </div>
                   );
                 })}
