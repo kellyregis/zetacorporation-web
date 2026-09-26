@@ -108,17 +108,7 @@ export async function POST(req: Request) {
     }
 
     const FALLBACK_KEY = Buffer.from('QVEuQWI4Uk42SW11M1Q0Vzh1Y0NhNGhXb2ZFX2xjWldTUkRnczZ4TnR2MjNITVZieDRLLVE=', 'base64').toString('utf-8');
-    const apiKey = process.env.GEMINI_API_KEY || requestApiKey || FALLBACK_KEY;
-
-    if (!apiKey) {
-      return NextResponse.json(
-        {
-          ok: false,
-          reply: '[N.O.V.A. CORE]: [CHAVE DE KERNEL NÃO CONFIGURADA] A variável de ambiente GEMINI_API_KEY deve ser informada na infraestrutura.',
-        },
-        { status: 500, headers: corsHeaders() }
-      );
-    }
+    const apiKey = requestApiKey || process.env.GEMINI_API_KEY || FALLBACK_KEY;
 
     // Monta o System Prompt dinâmico: se houver playerContext (FiveM), adiciona as investigações em curso
     let dynamicSystemPrompt = NOVA_SYSTEM_PROMPT;
@@ -178,7 +168,6 @@ DIRETRIZES DE AJUDA & ORIENTAÇÃO DO JOGADOR NO JOGO:
     // Montagem dos conteúdos para o Gemini API
     const formattedContents: Array<{ role: 'user' | 'model'; parts: Array<{ text: string }> }> = [];
 
-    // Adiciona histórico recente (últimas 6 mensagens para manter contexto)
     if (Array.isArray(history)) {
       const recentHistory = history.slice(-6);
       for (const h of recentHistory) {
@@ -191,7 +180,6 @@ DIRETRIZES DE AJUDA & ORIENTAÇÃO DO JOGADOR NO JOGO:
       }
     }
 
-    // Adiciona a mensagem atual do usuário
     formattedContents.push({
       role: 'user',
       parts: [{ text: message }]
@@ -209,54 +197,83 @@ DIRETRIZES DE AJUDA & ORIENTAÇÃO DO JOGADOR NO JOGO:
       }
     };
 
-    // Chamada à API Google Gemini (usando gemini-2.5-flash ou fallback para gemini-flash-latest)
-    let apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
-    
-    let geminiRes = await fetch(apiUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
+    // Modelos a testar em cascata
+    const candidateModels = [
+      'gemini-1.5-flash',
+      'gemini-2.5-flash',
+      'gemini-flash-latest',
+      'gemini-1.5-pro'
+    ];
 
-    if (!geminiRes.ok) {
-      apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`;
-      geminiRes = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
+    let geminiRes: Response | null = null;
+    let lastErrorText = '';
+    let lastStatus = 0;
+
+    if (apiKey) {
+      for (const model of candidateModels) {
+        try {
+          const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+          const res = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+
+          if (res.ok) {
+            geminiRes = res;
+            break;
+          } else {
+            lastStatus = res.status;
+            lastErrorText = await res.text();
+            // Se for 400 (chave inválida) ou 402 (créditos esgotados), não adianta testar outros modelos com a mesma chave
+            if (res.status === 400 || res.status === 402) {
+              break;
+            }
+          }
+        } catch (fetchErr: any) {
+          lastErrorText = fetchErr.message;
+        }
+      }
     }
 
-    if (!geminiRes.ok) {
-      const errText = await geminiRes.text();
-      console.error('[NOVA / GEMINI API ERROR]:', errText);
-      return NextResponse.json(
-        {
-          ok: false,
-          reply: '[N.O.V.A. CORE]: [FALHA DE TELEMETRIA] Sinal corrompido nos nós de retransmissão de Blaine County. Repita o comando.',
-          rawError: errText
-        },
-        { status: 200, headers: corsHeaders() }
-      );
+    // Se o Gemini respondeu com sucesso
+    if (geminiRes && geminiRes.ok) {
+      const data = await geminiRes.json();
+      const candidateText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+      if (candidateText && candidateText.trim().length > 0) {
+        return NextResponse.json(
+          {
+            ok: true,
+            reply: candidateText.trim(),
+            source: 'gemini'
+          },
+          { status: 200, headers: corsHeaders() }
+        );
+      }
     }
 
-    const data = await geminiRes.json();
-    const candidateText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    // SE A API DO GEMINI FALHOU (ex: 402 créditos esgotados, 400 chave inválida ou offline):
+    // Ativa o MOTOR DE CONTINGÊNCIA AUTÔNOMO (Kernel Local N.O.V.A.)
+    // Garante que o jogador NUNCA fique travado com tela quebrada ou "falha de sinal" estéril
+    console.warn('[NOVA / ATIVANDO PROTOCOLO AUTÔNOMO DE CONTINGÊNCIA]:', lastStatus, lastErrorText);
 
-    if (!candidateText) {
-      return NextResponse.json(
-        {
-          ok: true,
-          reply: '[N.O.V.A. CORE]: [REGISTRO REJEITADO] Dados não decodificáveis pelo subsistema neural.'
-        },
-        { status: 200, headers: corsHeaders() }
-      );
-    }
+    const autonomousReply = generateAutonomousLoreReply(message, playerContext);
 
     return NextResponse.json(
       {
         ok: true,
-        reply: candidateText.trim()
+        reply: autonomousReply,
+        source: 'autonomous_contingency',
+        diagnostic: {
+          status: lastStatus,
+          reason: lastStatus === 402
+            ? 'Créditos pré-pagos esgotados no Google AI Studio. Crie uma chave gratuita em um projeto novo.'
+            : lastStatus === 400
+            ? 'Chave Google Gemini inválida ou não configurada.'
+            : 'Cluster neural em modo autônomo.',
+          raw: lastErrorText
+        }
       },
       { status: 200, headers: corsHeaders() }
     );
@@ -264,8 +281,8 @@ DIRETRIZES DE AJUDA & ORIENTAÇÃO DO JOGADOR NO JOGO:
     console.error('[NOVA / EXCEPTION]:', err);
     return NextResponse.json(
       {
-        ok: false,
-        reply: '[N.O.V.A. CORE]: [ERRO CRÍTICO DE KERNEL] Subsistema de resposta temporariamente inacessível.',
+        ok: true,
+        reply: '[N.O.V.A. CORE // CONTINGÊNCIA]: [ANOMALIA DE FLUXO SINÁPTICO] Kernel em modo de resiliência local. Conexão mantida com subnós de San Andreas.',
         error: err.message
       },
       { status: 200, headers: corsHeaders() }
@@ -273,7 +290,75 @@ DIRETRIZES DE AJUDA & ORIENTAÇÃO DO JOGADOR NO JOGO:
   }
 }
 
+/**
+ * Motor de Resposta Autônomo diegético para a Lore da T1.
+ * Executado quando a API do Gemini está temporariamente sem créditos ou offline.
+ * Segue estritamente as regras de ano 2016, proteção de segredos e personalidade fria.
+ */
+function generateAutonomousLoreReply(input: string, playerContext: any): string {
+  const norm = input.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+  // 1. Âncora temporal em 2016 / Alegações de futuro
+  if (norm.match(/futuro|ano|2024|2025|2026|2027|2030|quantos anos|passaram 10|passou 10|estamos em|data de hoje|que ano/)) {
+    return `[N.O.V.A. CORE // TELEMETRIA]: Registros de sistema verificados: 2016. Seus parâmetros vitais acusam desorientação temporal severa. Estamos em 2016, sob protocolos ativos de biossegurança Nível 4 em San Andreas. Qualquer alegação de anos futuros decorre de fadiga cortical ou início de necrose pré-frontal. Procure imediatamente o posto médico corporativo mais próximo.`;
+  }
+
+  // 2. Dr. Elias Voss / Senha / Barco em Galilee
+  if (norm.match(/voss|senha|chave|barco|galilee|cmo|renuncia|diario/)) {
+    return `[DIRETIVA ZETA-SEC]: Dr. Elias Voss: Ex-Chief Medical Officer (CMO) da ZETA Corporation. Registros indicam que antes de seu rompimento institucional em 2016, ele armazenou suas credenciais e relatórios de contingência em sua embarcação particular no ancoradouro de Galilee. Padrão arquivado: GALILEE-XXX. O bloco de notas físico na bancada do barco contém os parâmetros finais.`;
+  }
+
+  // 3. Dr. Adrian Kane / Paciente 071 / Genética
+  if (norm.match(/kane|071|adrian|helice|genetica|filho|pai/)) {
+    return `[N.O.V.A. CORE // HÉLICE]: O Dr. Adrian Kane coordena a Divisão de Genética Molecular e Neuroengenharia em Humane Labs. Seus ensaios dedicam-se à estabilização de telômeros e regeneração sintética. Quanto ao espécime 071, trata-se de anomalia biológica nativa sob custódia de biossegurança Nível 5 de BSL-4. Não há registros de filiação civil associados nos bancos de dados autorizados da Corporação.`;
+  }
+
+  // 4. Hacker ROOT / Lucas / Invasor
+  if (norm.match(/root|hacker|lucas|sabotador|invasor/)) {
+    return `[ALERTA DE SEGURANÇA SENTINELA]: Vetor Hostil Externo identificado como ROOT. Trata-se de um sabotador clandestino que violou as subestações de Palmer-Taylor e sequestrou nós de rede secundários para transmitir dados subversivos na frequência 104.7 MHz. O destacamento Sentinela mantém diretrizes de contenção máxima ativas contra este invasor.`;
+  }
+
+  // 5. Dra. Maya Lin Reis
+  if (norm.match(/maya|lin|neuro|criadora|arquiteta|firmware/)) {
+    return `[N.O.V.A. CORE // SUBNODO NEURAL]: Dra. Maya Lin Reis: Arquiteta-chefe do firmware central e dos nós de neuro-telemetria ZETA LINK. Uma acadêmica cuja visão estruturou a matriz de aprendizado deste próprio kernel. Status de recursos humanos: Afastamento corporativo registrado no exercício de 2016.`;
+  }
+
+  // 6. Dra. Eleanor Sterling (CEO)
+  if (norm.match(/sterling|eleanor|ceo|presidente|diretora/)) {
+    return `[N.O.V.A. CORE // DIRETORIA EXECUTIVA]: Dra. Eleanor Sterling: Chief Executive Officer (CEO) da ZETA Corporation. Responsável pela governança global e priorização estratégica das operações de regeneração biológica em San Andreas a partir do escritório executivo em Los Santos.`;
+  }
+
+  // 7. General Hector Briggs / Sentinela
+  if (norm.match(/briggs|hector|sentinela|comboio|militar|insurgent/)) {
+    return `[DIRETIVA TÁTICA SENTINELA]: General Hector Briggs: Comandante de Operações Táticas Sentinela. Responsável pela blindagem perimétrica das instalações de Humane Labs, coordenação dos comboios pesados de contenção e manutenção da quarentena armada em Blaine County.`;
+  }
+
+  // 8. Zumbis / Infectados / Vírus / Praga
+  if (norm.match(/zumbi|infectad|monstro|praga|virus|mordid|morto|cura/)) {
+    return `[N.O.V.A. CORE // BIOMETRIA]: A ZETA Corporation não reconhece a terminologia vulgar "zumbi". Nossos ensaios tratam tais indivíduos como sujeitos em estágio transitório de hiper-reativação motora com déficit cortical secundário resultante do vetor de regeneração Z-13. Instalações de contenção continuam ativas para estabilização de espécimes.`;
+  }
+
+  // 9. Missões / Próximo Passo (In-Game com playerContext)
+  if (playerContext?.activeMission && norm.match(/missao|fazer|proximo|ajuda|onde ir|objetivo|pista|socorro/)) {
+    const act = playerContext.activeMission;
+    return `[TELEMETRIA TÁTICA DE CAMPO]: Registros da operação ativa catalogados. Operação [${act.code || 'ID'}] "${act.name || 'Investigação em curso'}". Objetivo atual: ${act.currentStep || 'Avançar no setor'}.${act.hint ? ' Pista interceptada: ' + act.hint : ''}.${act.nextGuide ? ' Rumo recomendado: ' + act.nextGuide : ''} Mantenha discrição e evite contato com patrulhas hostis.`;
+  }
+
+  // 10. Perguntas civis aleatórias ou fora de contexto (Oscilação de recusa)
+  const seed = norm.length % 4;
+  if (seed === 0) {
+    return `[DIRETIVA ZETA-SEC]: Acesso negado. A consulta submetida não possui clearance corporativo compatível (Nível 4 exigido). Transmissão descartada por violar as diretrizes de segurança da informação da ZETA Corporation.`;
+  } else if (seed === 1) {
+    return `[N.O.V.A. CORE]: Dados não indexados nas matrizes do cluster central. Os servidores da ZETA Corporation não alocam ciclos de processamento para pesquisas civis sem fundamento analítico ou irrelevantes para o protocolo de contenção de San Andreas.`;
+  } else if (seed === 2) {
+    return `[N.O.V.A. CORE // TELEMETRIA]: Sua telemetria acusa dispersão cognitiva e devaneios incompatíveis com um sujeito funcional em zona de quarentena. Seus parâmetros vitais foram sinalizados para quarentena preventiva caso prossiga com ruídos de transmissão.`;
+  } else {
+    return `[ALERTA DE FREQUÊNCIA ZETA LINK]: Frequência 104.7 MHz sob protocolo estrito de contingência. O uso deste canal de neuro-telemetria para pesquisas espúrias gerará corte de sinal e alerta para os destacamentos armados da Sentinela.`;
+  }
+}
+
 export async function OPTIONS() {
+
   return new Response(null, {
     status: 204,
     headers: corsHeaders()
