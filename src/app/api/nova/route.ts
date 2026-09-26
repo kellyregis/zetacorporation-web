@@ -236,7 +236,7 @@ DIRETRIZES DE AJUDA & ORIENTAÇÃO DO JOGADOR NO JOGO:
           reply: '[N.O.V.A. CORE]: [FALHA DE TELEMETRIA] Sinal corrompido nos nós de retransmissão de Blaine County. Repita o comando.',
           rawError: errText
         },
-        { status: 502, headers: corsHeaders() }
+        { status: 200, headers: corsHeaders() }
       );
     }
 
@@ -249,7 +249,7 @@ DIRETRIZES DE AJUDA & ORIENTAÇÃO DO JOGADOR NO JOGO:
           ok: true,
           reply: '[N.O.V.A. CORE]: [REGISTRO REJEITADO] Dados não decodificáveis pelo subsistema neural.'
         },
-        { headers: corsHeaders() }
+        { status: 200, headers: corsHeaders() }
       );
     }
 
@@ -258,7 +258,7 @@ DIRETRIZES DE AJUDA & ORIENTAÇÃO DO JOGADOR NO JOGO:
         ok: true,
         reply: candidateText.trim()
       },
-      { headers: corsHeaders() }
+      { status: 200, headers: corsHeaders() }
     );
   } catch (err: any) {
     console.error('[NOVA / EXCEPTION]:', err);
@@ -268,7 +268,7 @@ DIRETRIZES DE AJUDA & ORIENTAÇÃO DO JOGADOR NO JOGO:
         reply: '[N.O.V.A. CORE]: [ERRO CRÍTICO DE KERNEL] Subsistema de resposta temporariamente inacessível.',
         error: err.message
       },
-      { status: 500, headers: corsHeaders() }
+      { status: 200, headers: corsHeaders() }
     );
   }
 }
