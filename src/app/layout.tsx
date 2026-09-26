@@ -68,7 +68,7 @@ export default function RootLayout({
             __html: `<!--
 ========================================================================================
 [SISTEMA DE TRANSMISSÃO CLANDESTINA // INVASÃO CONFIRMADA]
-AUTOR: ROOT (Lucas Reis)
+AUTOR: ROOT [IDENTIDADE: NÃO CATALOGADA]
 STATUS DO NODO: INTERCEPTADO & COMPROMETIDO
 DESTINATÁRIO: SOBREVIVENTES // INVESTIGADORES // QUEM ESTIVER LENDO ESTE CÓDIGO
 ========================================================================================
