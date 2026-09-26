@@ -45,7 +45,7 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose })
     setFeedback(null);
 
     try {
-      const res = await fetch('/api/resend', {
+      const res = await fetch('/api/dispatch', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
