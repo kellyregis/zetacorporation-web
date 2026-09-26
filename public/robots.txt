@@ -1,0 +1,23 @@
+# ZETA CORPORATION — DIRETIVA DE RASTREAMENTO WEB
+# CONFIDENCIAL // APENAS PARA INDEXAÇÃO AUTOMATIZADA AUTORIZADA
+User-agent: *
+Allow: /
+Allow: /about
+Allow: /research
+Allow: /leadership
+Allow: /investors
+Allow: /press
+
+# SETORES CLASSIFICADOS — ESTRITAMENTE PROIBIDOS PARA ARQUIVOS PÚBLICOS
+# VIOLAÇÕES ACIONARÃO RASTREAMENTO AUTOMÁTICO DE REDE E DESPACHO SENTINELA
+Disallow: /portal/operacoes-internas/
+Disallow: /arquivo/paciente-071/
+Disallow: /setores/humane-labs-subsolo/
+Disallow: /pesquisa/z13-ensaios-clinicos/
+Disallow: /operacoes/comboio-17-manifesto/
+Disallow: /classificado/
+Disallow: /api/cofre/
+
+# NOTA DA DIRETORIA CIENTÍFICA:
+# "O Paciente 071 não é o resultado do projeto. Ele é a razão pela qual o projeto existiu."
+# — Dr. Elias Voss (Registro Arquivado #0419)
