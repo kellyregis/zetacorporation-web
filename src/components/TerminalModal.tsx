@@ -206,8 +206,14 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose })
   const [cliLogs, setCliLogs] = useState<Array<{ type: 'in' | 'out' | 'err'; text: string }>>([
     { type: 'out', text: 'ZETA CORPORATION QUANTUM MAINFRAME // OS v4.19.0' },
     { type: 'out', text: 'CONEXÃO ESTABELECIDA VIA NODO: SANDY_SHORES_RELAY_01 (104.7 MHz)' },
-    { type: 'out', text: 'Digite "help" para visualizar os comandos de contingência autorizados.' }
+    { type: 'out', text: 'Digite "help" para ver comandos autorizados ou "nova" para falar com a IA.' }
   ]);
+
+  // Estados para modo de conversação neural com a IA N.O.V.A.
+  const [isNovaMode, setIsNovaMode] = useState(false);
+  const [novaHistory, setNovaHistory] = useState<Array<{ role: 'user' | 'model'; text: string }>>([]);
+  const [novaLoading, setNovaLoading] = useState(false);
+
   const terminalEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -317,18 +323,105 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose })
   };
 
   // Processamento de comandos do CLI Hacker
-  const handleCliSubmit = (e: React.FormEvent) => {
+  const handleCliSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const cmd = cliInput.trim().toLowerCase();
-    if (!cmd) return;
+    const rawInput = cliInput.trim();
+    if (!rawInput) return;
+    const cmd = rawInput.toLowerCase();
 
-    const newLogs = [...cliLogs, { type: 'in' as const, text: `zeta-guest@terminal:~$ ${cliInput}` }];
+    // Se estiver em modo de conversação neural com N.O.V.A.
+    if (isNovaMode) {
+      setCliInput('');
+
+      // Comandos de saída
+      if (cmd === 'sair' || cmd === 'exit' || cmd === 'desconectar' || cmd === 'quit') {
+        setIsNovaMode(false);
+        setCliLogs((prev) => [
+          ...prev,
+          { type: 'in', text: `user@nova:~$ ${rawInput}` },
+          { type: 'out', text: 'N.O.V.A.: "Sessão neural suspensa. Monitoramento contínuo em segundo plano ativo."' },
+          { type: 'out', text: '[SISTEMA]: Retornando ao shell de convidado ZETA-SEC.' }
+        ]);
+        return;
+      }
+
+      if (cmd === 'clear' || cmd === 'limpar') {
+        setCliLogs([]);
+        return;
+      }
+
+      // Adiciona entrada do usuário e mensagem de processamento temporária
+      setCliLogs((prev) => [
+        ...prev,
+        { type: 'in', text: `user@nova:~$ ${rawInput}` },
+        { type: 'out', text: '[N.O.V.A. PROCESSANDO TELEMETRIA...]' }
+      ]);
+
+      setNovaLoading(true);
+
+      try {
+        const res = await fetch('/api/nova', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: rawInput,
+            history: novaHistory
+          })
+        });
+
+        const data = await res.json();
+        const reply = data.reply || '[N.O.V.A.]: [FALHA DE COMUNICAÇÃO NO SUBSISTEMA]';
+
+        // Atualiza logs removendo a mensagem temporária de processamento
+        setCliLogs((prev) => {
+          const filtered = prev.filter(
+            (log) => log.text !== '[N.O.V.A. PROCESSANDO TELEMETRIA...]'
+          );
+          return [...filtered, { type: 'out', text: reply }];
+        });
+
+        // Atualiza histórico de contexto para memória contínua da IA
+        setNovaHistory((prev) => [
+          ...prev,
+          { role: 'user', text: rawInput },
+          { role: 'model', text: reply }
+        ]);
+      } catch (err) {
+        setCliLogs((prev) => {
+          const filtered = prev.filter(
+            (log) => log.text !== '[N.O.V.A. PROCESSANDO TELEMETRIA...]'
+          );
+          return [
+            ...filtered,
+            { type: 'err', text: '[N.O.V.A.]: [ERRO CRÍTICO DE KERNEL] Conexão neural interrompida.' }
+          ];
+        });
+      } finally {
+        setNovaLoading(false);
+      }
+      return;
+    }
+
+    // Modo normal (Guest CLI)
+    const newLogs = [...cliLogs, { type: 'in' as const, text: `zeta-guest@terminal:~$ ${rawInput}` }];
 
     switch (cmd) {
+      case 'nova':
+        setIsNovaMode(true);
+        newLogs.push(
+          { type: 'out', text: '============================================================' },
+          { type: 'out', text: '[INICIALIZANDO PROTOCOLO NEURAL N.O.V.A. KERNEL v4.19-B...]' },
+          { type: 'out', text: '[CONEXÃO ESTABELECIDA // NODO SUBTERRÂNEO ZETA-04]' },
+          { type: 'out', text: 'N.O.V.A.: "Interface neural conectada. Identifique-se, sobrevivente. O que você procura nos registros da ZETA Corporation? (Digite \'sair\' para desconectar)"' },
+          { type: 'out', text: '============================================================' }
+        );
+        break;
+
       case 'help':
       case 'ajuda':
         newLogs.push(
           { type: 'out', text: 'COMANDOS DISPONÍVEIS:' },
+          { type: 'out', text: '  nova         - Estabelece comunicação neural direta com a IA N.O.V.A.' },
           { type: 'out', text: '  status       - Relatório de integridade das instalações em San Andreas' },
           { type: 'out', text: '  whoami       - Informações da sessão e nível de acesso' },
           { type: 'out', text: '  071          - Telemetria confidencial do Paciente 071' },
@@ -426,7 +519,7 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose })
       default:
         newLogs.push({
           type: 'err',
-          text: `Comando desconhecido: "${cmd}". Digite "help" para ver os comandos válidos.`
+          text: `Comando desconhecido: "${cmd}". Digite "help" para ver os comandos válidos ou "nova" para falar com a IA.`
         });
         break;
     }
@@ -931,41 +1024,64 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose })
             <div className="flex-1 flex flex-col p-5 overflow-hidden">
               {/* CLI Terminal Output */}
               <div className="flex-1 overflow-y-auto space-y-2 text-xs font-mono pr-2">
-                {cliLogs.map((log, index) => (
-                  <div
-                    key={index}
-                    className={`${
-                      log.type === 'in'
-                        ? 'text-cyan-300 font-bold'
-                        : log.type === 'err'
-                        ? 'text-red-400 font-semibold'
-                        : 'text-slate-300'
-                    }`}
-                  >
-                    {log.text}
-                  </div>
-                ))}
+                {cliLogs.map((log, index) => {
+                  const isNovaSpeech = log.text.startsWith('N.O.V.A.:') || log.text.includes('[N.O.V.A.');
+                  return (
+                    <div
+                      key={index}
+                      className={`${
+                        log.type === 'in'
+                          ? isNovaMode
+                            ? 'text-fuchsia-300 font-bold'
+                            : 'text-cyan-300 font-bold'
+                          : log.type === 'err'
+                          ? 'text-red-400 font-semibold'
+                          : isNovaSpeech
+                          ? 'text-fuchsia-200 bg-fuchsia-950/20 border-l-2 border-fuchsia-500/60 p-2 rounded leading-relaxed shadow-[0_0_15px_rgba(217,70,239,0.1)]'
+                          : 'text-slate-300'
+                      }`}
+                    >
+                      {log.text}
+                    </div>
+                  );
+                })}
                 <div ref={terminalEndRef} />
               </div>
 
               {/* CLI Input Line */}
               <form onSubmit={handleCliSubmit} className="mt-4 pt-3 border-t border-slate-800 flex items-center gap-2 shrink-0">
-                <span className="text-cyan-400 font-mono text-xs font-bold shrink-0">
-                  zeta-guest@terminal:~$
+                <span
+                  className={`font-mono text-xs font-bold shrink-0 ${
+                    isNovaMode ? 'text-fuchsia-400 animate-pulse' : 'text-cyan-400'
+                  }`}
+                >
+                  {isNovaMode ? 'nova@zeta-core:~$' : 'zeta-guest@terminal:~$'}
                 </span>
                 <input
                   type="text"
+                  disabled={novaLoading}
                   value={cliInput}
                   onChange={(e) => setCliInput(e.target.value)}
-                  placeholder="digite um comando (ex: help, status, 071, voss, senha)"
-                  className="flex-1 bg-transparent border-none text-white text-xs font-mono focus:outline-none placeholder-slate-600"
+                  placeholder={
+                    isNovaMode
+                      ? novaLoading
+                        ? 'N.O.V.A. processando telemetria neural...'
+                        : 'Converse com a N.O.V.A... (digite "sair" para desconectar)'
+                      : 'digite um comando (ex: nova, help, status, 071, voss, senha)'
+                  }
+                  className="flex-1 bg-transparent border-none text-white text-xs font-mono focus:outline-none placeholder-slate-600 disabled:opacity-50"
                   autoFocus
                 />
                 <button
                   type="submit"
-                  className="px-3 py-1 bg-cyan-950 border border-cyan-500/40 rounded text-cyan-300 text-xs hover:bg-cyan-900 transition-colors"
+                  disabled={novaLoading || !cliInput.trim()}
+                  className={`px-3 py-1 border rounded text-xs transition-colors disabled:opacity-50 ${
+                    isNovaMode
+                      ? 'bg-fuchsia-950 border-fuchsia-500/40 text-fuchsia-300 hover:bg-fuchsia-900'
+                      : 'bg-cyan-950 border-cyan-500/40 text-cyan-300 hover:bg-cyan-900'
+                  }`}
                 >
-                  Executar
+                  {isNovaMode ? (novaLoading ? 'Transmitindo...' : 'Transmitir') : 'Executar'}
                 </button>
               </form>
             </div>
