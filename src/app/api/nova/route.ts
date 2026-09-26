@@ -98,7 +98,7 @@ FORMATO DAS RESPOSTAS:
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { message, history = [], playerContext = null } = body;
+    const { message, history = [], playerContext = null, apiKey: requestApiKey = null } = body;
 
     if (!message || typeof message !== 'string') {
       return NextResponse.json(
@@ -108,7 +108,7 @@ export async function POST(req: Request) {
     }
 
     const FALLBACK_KEY = Buffer.from('QVEuQWI4Uk42SW11M1Q0Vzh1Y0NhNGhXb2ZFX2xjWldTUkRnczZ4TnR2MjNITVZieDRLLVE=', 'base64').toString('utf-8');
-    const apiKey = process.env.GEMINI_API_KEY || FALLBACK_KEY;
+    const apiKey = process.env.GEMINI_API_KEY || requestApiKey || FALLBACK_KEY;
 
     if (!apiKey) {
       return NextResponse.json(
