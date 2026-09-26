@@ -11,7 +11,7 @@ interface TerminalModalProps {
 export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose }) => {
   const [activeTab, setActiveTab] = useState<'login' | 'cli'>('login');
   
-  // Login / Resend State
+  // Login / Contingency State
   const [email, setEmail] = useState('');
   const [empId, setEmpId] = useState('');
   const [password, setPassword] = useState('');
@@ -36,7 +36,7 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose })
 
   if (!isOpen) return null;
 
-  // Envio de email real via Resend
+  // Envio de e-mail de contingência
   const handleSendResetEmail = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
@@ -210,7 +210,7 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose })
                 activeTab === 'login' ? 'bg-cyan-950 text-cyan-300 font-bold border border-cyan-500/30' : 'text-slate-400 hover:text-white'
               }`}
             >
-              Autenticação & Resend
+              Autenticação Corporativa
             </button>
             <button
               onClick={() => setActiveTab('cli')}
@@ -240,7 +240,7 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose })
                 </h3>
                 <p className="text-xs text-slate-400 mt-1">
                   {isResetMode
-                    ? 'Insira seu e-mail real para despachar uma chave de contingência via Resend.'
+                    ? 'Insira seu e-mail cadastrado para despachar uma chave de contingência.'
                     : 'Apenas colaboradores com credencial nível 2 ou superior.'}
                 </p>
               </div>
@@ -318,11 +318,11 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose })
                   className="w-full py-3 rounded-lg bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold text-xs tracking-wider uppercase transition-all shadow-[0_0_20px_rgba(14,165,233,0.3)] flex items-center justify-center gap-2 disabled:opacity-50"
                 >
                   {loading ? (
-                    <span>Transmitindo via Resend...</span>
+                    <span>Transmitindo dados...</span>
                   ) : (
                     <>
                       <Send className="w-3.5 h-3.5" />
-                      <span>{isResetMode ? 'Enviar Despacho via Resend' : 'Solicitar Chave de Contingência'}</span>
+                      <span>{isResetMode ? 'Enviar Despacho de Contingência' : 'Solicitar Chave de Contingência'}</span>
                     </>
                   )}
                 </button>
@@ -335,7 +335,7 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose })
                   >
                     {isResetMode
                       ? 'Voltar para autenticação padrão'
-                      : 'Esqueceu a credencial? Solicitar redefinição por e-mail (Resend)'}
+                      : 'Esqueceu a credencial? Solicitar redefinição por e-mail'}
                   </button>
                 </div>
               </form>
@@ -388,7 +388,7 @@ export const TerminalModal: React.FC<TerminalModalProps> = ({ isOpen, onClose })
         {/* Terminal Status Footer */}
         <div className="bg-slate-950 px-6 py-2.5 border-t border-slate-900 text-[10px] font-mono text-slate-500 flex items-center justify-between">
           <span>PORTAL ZETA-SEC // CRIPTOGRAFIA QUÂNTICA 4096-BIT</span>
-          <span className="text-cyan-500">GATEWAY RESEND OPERACIONAL</span>
+          <span className="text-cyan-500">GATEWAY DE COMUNICAÇÃO OPERACIONAL</span>
         </div>
       </div>
     </div>

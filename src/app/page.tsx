@@ -40,7 +40,7 @@ export default function Home() {
       {/* Footer */}
       <Footer onOpenTerminal={() => setTerminalOpen(true)} />
 
-      {/* Interactive ZETA-SEC Terminal Modal with Resend API Integration */}
+      {/* Interactive ZETA-SEC Terminal Modal */}
       <TerminalModal
         isOpen={terminalOpen}
         onClose={() => setTerminalOpen(false)}

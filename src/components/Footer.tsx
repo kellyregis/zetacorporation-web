@@ -104,7 +104,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenTerminal }) => {
                   className="hover:text-slate-200 transition-colors flex items-center gap-1.5"
                 >
                   <Mail className="w-3.5 h-3.5 text-slate-400" />
-                  <span>Canal Seguro (Resend)</span>
+                  <span>Canal Seguro de Comunicação</span>
                 </button>
               </li>
               <li>
